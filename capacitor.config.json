@@ -1,0 +1,8 @@
+{
+  "appId": "app.elio.agent",
+  "appName": "Orion Works",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

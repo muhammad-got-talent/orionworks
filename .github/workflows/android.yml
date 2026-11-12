@@ -1,0 +1,35 @@
+name: Build Android APK
+
+# Run it from your phone: Actions tab > Build Android APK > Run workflow.
+# Needs one secret: GOOGLE_SERVICES_JSON (the whole google-services.json file from Firebase).
+on:
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Add google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::warning::GOOGLE_SERVICES_JSON secret is missing. The app will build, but calls will not ring while it is closed."
+          else
+            printf '%s' "$GOOGLE_SERVICES_JSON" > google-services.json
+          fi
+      - run: npm install
+      - run: npm run android:apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: orion-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
